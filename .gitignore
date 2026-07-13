@@ -1,9 +1,26 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 
+# Virtual environments
+.venv/
+venv/
 
-data/images/
-data/labels/
+# Data
+data/images/*
+data/labels/*
+!data/images/.gitkeep
+!data/labels/.gitkeep
 
+# Models
+models/*
+!models/.gitkeep
+
+# Output
 output/*
+!output/.gitkeep
+
+# IDE
+.vscode/
+.idea/

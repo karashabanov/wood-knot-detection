@@ -1,0 +1,9 @@
+dataset:
+  images: data/images
+  labels: data/labels
+
+output:
+  directory: output
+
+models:
+  weights: models/

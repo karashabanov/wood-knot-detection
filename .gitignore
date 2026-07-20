@@ -10,6 +10,7 @@ venv/
 # Data
 data/images/*
 data/labels/*
+data/labels.cache
 !data/images/.gitkeep
 !data/labels/.gitkeep
 
@@ -20,6 +21,7 @@ models/*
 # Output
 output/*
 !output/.gitkeep
+runs/*
 
 # IDE
 .vscode/

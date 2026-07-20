@@ -1,0 +1,10 @@
+model:
+  weights: models/yolo11s.pt
+
+training:
+  epochs: 15
+  batch_size: 16
+  image_size: 640
+
+device:
+  auto: true

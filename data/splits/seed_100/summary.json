@@ -1,0 +1,19 @@
+{
+    "seed": 100,
+    "ratios": {
+        "train": 0.7,
+        "val": 0.15,
+        "test": 0.15
+    },
+    "samples": {
+        "total": 5679,
+        "train": 3968,
+        "val": 862,
+        "test": 849
+    },
+    "boards": {
+        "train": 236,
+        "val": 52,
+        "test": 53
+    }
+}

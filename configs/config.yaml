@@ -13,4 +13,4 @@ output:
   directory: output
 
 models:
-  weights: models/
+  weights: models

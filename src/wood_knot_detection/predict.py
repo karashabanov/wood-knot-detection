@@ -1,5 +1,6 @@
 import argparse
 import yaml
+import cv2
 
 from pathlib import Path
 from typing import Tuple, Dict, List
@@ -7,6 +8,8 @@ from typing import Tuple, Dict, List
 from src.wood_knot_detection.dataset.loader import WoodKnotDataset
 from src.wood_knot_detection.detection.detector import YOLODetector
 from src.wood_knot_detection.dataset.models import PredictionSample
+from src.wood_knot_detection.utils import board
+from src.wood_knot_detection.utils.visualization import draw_bounding_boxes
 
 def load_yaml(path: Path) -> Dict:
     with open(path, "r") as file:
@@ -85,7 +88,7 @@ if __name__ == "__main__":
             annotations=sample.annotations,
             detections=prediction.detections
         )
-        prediction_samples.append(prediction)
+        prediction_samples.append(prediction_sample)
         
         total_detections += len(prediction.detections)
         total_annotations += len(sample.annotations)
@@ -93,3 +96,35 @@ if __name__ == "__main__":
     print(f'Images evaluated: {len(prediction_samples)}')
     print(f'Total annotations: {total_annotations}')
     print(f'Total detections: {total_detections}')
+    
+    print('Stitching frames...')
+    output_dir = (Path(config.get('output').get('directory'))/f'seed_{args.seed}'/f'{args.run}')
+    # Draw bounding boxes, stitch and save
+    boards = board.group_prediction_samples_by_board(prediction_samples)
+    for board_index, board_samples in boards.items():
+        
+        # Draw bounding boxes (ground truth + predictions) on each frame
+        frames_per_board = []
+        for sample in board_samples:
+            sample.frame_number
+            sample.image_path
+            sample.annotations
+            sample.detections
+        
+            frame = cv2.imread(str(sample.image_path))
+            # Draw annotations
+            frame = draw_bounding_boxes(frame, sample.annotations, (0, 255, 0))
+            # Draw predictions
+            frame = draw_bounding_boxes(frame, sample.detections, (255, 0, 0))
+            
+            frames_per_board.append(frame)
+        
+        # Stitch all frames per board
+        stitched_board = board.stitch_board(frames_per_board)
+        
+        board.save_board_image(
+            output_dir=output_dir,
+            board_index=board_index,
+            image=stitched_board
+        )
+    print('Stithing frames finished.')

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import List
 
 @dataclass(frozen=True)
 class BoundingBox:
@@ -21,4 +22,16 @@ class Sample:
     label_path: Path
     board_index: int
     frame_number: int
-    annotations: list[BoundingBox]
+    annotations: List[BoundingBox]
+
+@dataclass(frozen=True)
+class Detection:
+    class_id: int
+    confidence: float
+    bounding_box: BoundingBox
+
+@dataclass(frozen=True)
+class ImagePrediction:
+    image_path: Path
+    detections: List[Detection]
+

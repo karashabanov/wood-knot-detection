@@ -2,21 +2,28 @@ import cv2
 
 from typing import Tuple, List
 
-from ..dataset.models import BoundingBox
+from ..dataset.models import BoundingBox, Detection
 from .geometry import yolo_to_pixel_coordinates
 
 def draw_bounding_boxes(
     image: cv2.typing.MatLike,
-    annotations: List[BoundingBox],
+    annotations: List[BoundingBox] | List[Detection],
     color: Tuple[int, int, int] = (0, 255, 0),
     thickness: int = 2,
     show_class_id: bool = True
 ) -> cv2.typing.MatLike:
-    image_height, image_width = image.shape[1]
+    image_height, image_width = image.shape[:2]
     
     for annotation in annotations:
+        if isinstance(annotation, Detection):
+            bounding_box = annotation.bounding_box
+            label = f'{annotation.class_id}: {annotation.confidence:.4f}'
+        else:
+            bounding_box = annotation
+            label = str(annotation.class_id)
+        
         x_min, y_min, x_max, y_max = yolo_to_pixel_coordinates(
-            bounding_box=annotation,
+            bounding_box=bounding_box,
             image_width=image_width,
             image_height=image_height
         )
@@ -32,7 +39,7 @@ def draw_bounding_boxes(
         if show_class_id:
             cv2.putText(
                 img=image,
-                text=str(annotation.class_id),
+                text=label,
                 org=(x_min, max(y_min - 5, 15)),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
                 fontScale=0.5,

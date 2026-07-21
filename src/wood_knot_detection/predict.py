@@ -4,7 +4,9 @@ import yaml
 from pathlib import Path
 from typing import Tuple, Dict, List
 
+from src.wood_knot_detection.dataset.loader import WoodKnotDataset
 from src.wood_knot_detection.detection.detector import YOLODetector
+from src.wood_knot_detection.dataset.models import PredictionSample
 
 def load_yaml(path: Path) -> Dict:
     with open(path, "r") as file:
@@ -38,6 +40,21 @@ if __name__ == "__main__":
     # Load config.yaml
     config = load_yaml(Path('configs/config.yaml'))
     
+    # Load dataset
+    image_dir = Path(config.get('dataset').get('images'))
+    label_dir = Path(config.get('dataset').get('labels'))
+    
+    dataset = WoodKnotDataset(
+        image_dir=image_dir,
+        label_dir=label_dir
+    )
+    
+    # LookUp for Ground Truth samples (raw dataset)
+    samples_by_image = {
+        sample.image_path: sample
+        for sample in dataset.samples
+    }
+    
     # Construct test manifest path
     test_manifest_path = (Path('data') / 'splits' / f'seed_{args.seed}' / 'test.txt')
     image_paths = load_test_manifest(test_manifest_path)
@@ -50,13 +67,29 @@ if __name__ == "__main__":
     detector = YOLODetector(weights=model_path)
     
     # Run inference
-    total_detections = 0
-    for image_path in image_paths:
-        prediction = detector.predict(image_path=image_path)
-        print(f'\nImage: {prediction.image_path}')
-        total_detections += len(prediction.detections)
-        
-        for detection in prediction.detections:
-            print(detection)
+    prediction_samples: List[PredictionSample] = []
+    total_detections = 0 # Bounding boxes count, YOLO found
+    total_annotations = 0 # Bounding boxes count, Ground Truth
     
+    for image_path in image_paths:
+        # Ground truth
+        sample = samples_by_image.get(image_path)
+        # Prediction
+        prediction = detector.predict(image_path=image_path)
+        
+        prediction_sample = PredictionSample(
+            image_path=sample.image_path,
+            label_path=sample.label_path,
+            board_index=sample.board_index,
+            frame_number=sample.frame_number,
+            annotations=sample.annotations,
+            detections=prediction.detections
+        )
+        prediction_samples.append(prediction)
+        
+        total_detections += len(prediction.detections)
+        total_annotations += len(sample.annotations)
+    
+    print(f'Images evaluated: {len(prediction_samples)}')
+    print(f'Total annotations: {total_annotations}')
     print(f'Total detections: {total_detections}')

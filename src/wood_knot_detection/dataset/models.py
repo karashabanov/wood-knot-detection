@@ -35,3 +35,6 @@ class ImagePrediction:
     image_path: Path
     detections: List[Detection]
 
+@dataclass(frozen=True)
+class PredictionSample(Sample):
+    detections: List[Detection]

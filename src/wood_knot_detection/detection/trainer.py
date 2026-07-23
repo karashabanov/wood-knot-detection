@@ -1,6 +1,7 @@
 from pathlib import Path
 from ultralytics import YOLO
 
+
 class YOLOTrainer:
     """
     Wrapper class for YOLO training.
@@ -8,23 +9,15 @@ class YOLOTrainer:
     - Configures training hyperparameters
     - Starts training
     """
-    def __init__(
-        self,
-        weights: Path,
-        dataset_yaml: Path,
-        device: str
-    ):
+
+    def __init__(self, weights: Path, dataset_yaml: Path, device: str):
         self.weights = weights
         self.dataset_yaml = dataset_yaml
         self.device = device
         self.model = YOLO(str(weights))
-    
+
     def train(
-        self,
-        epochs: int,
-        batch_size: int,
-        image_size: int,
-        output_directory: Path
+        self, epochs: int, batch_size: int, image_size: int, output_directory: Path
     ) -> None:
         self.model.train(
             data=str(self.dataset_yaml),

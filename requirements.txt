@@ -1,0 +1,5 @@
+opencv-contrib-python-headless==4.11.0.86
+opencv_python==4.11.0.86
+PyYAML==6.0.3
+torch==2.13.0
+ultralytics==8.4.102

@@ -72,10 +72,13 @@ if __name__ == "__main__":
     # Load test images
     if args.test_dir is not None:
         image_paths = sorted(image_dir.glob('*.png'))
+        output_dir = Path(args.test_dir) / 'evaluation'
+        
     else:
         # Construct test manifest path
         test_manifest_path = (Path('data') / 'splits' / f'seed_{args.seed}' / 'test.txt')
         image_paths = load_test_manifest(test_manifest_path)
+        output_dir = (Path(config.get('output').get('directory'))/f'seed_{args.seed}'/f'{args.run}')
     
     # Constuct model path
     model_path = (Path('runs') / 'detect' / 'output' / f'seed_{args.seed}' / f'{args.run}' / 'weights' / 'best.pt')
@@ -111,9 +114,7 @@ if __name__ == "__main__":
     print('Inference finished.')
     
     print('Stitching frames...')
-    output_dir = (Path(config.get('output').get('directory'))/f'seed_{args.seed}'/f'{args.run}')
     board.clear_board_images(output_dir=output_dir)
-    
     # Draw bounding boxes, stitch and save
     boards = board.group_prediction_samples_by_board(prediction_samples)
     for board_index, board_samples in boards.items():

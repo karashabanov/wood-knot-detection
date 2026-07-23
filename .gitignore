@@ -10,6 +10,7 @@ venv/
 # Data
 data/images/*
 data/labels/*
+data/test_dir/*
 data/labels.cache
 !data/images/.gitkeep
 !data/labels/.gitkeep

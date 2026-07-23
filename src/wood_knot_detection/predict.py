@@ -39,14 +39,24 @@ if __name__ == "__main__":
         required=True,
         help='Training run name containing the trained weights.'
     )
+    parser.add_argument(
+        '--test_dir',
+        type=str,
+        required=False,
+        help="Custom test dataset containing images/ and labels/."
+    )
     args = parser.parse_args()
     
     # Load config.yaml
     config = load_yaml(Path('configs/config.yaml'))
     
     # Load dataset
-    image_dir = Path(config.get('dataset').get('images'))
-    label_dir = Path(config.get('dataset').get('labels'))
+    if args.test_dir is not None:
+        image_dir = Path(args.test_dir) / 'images'
+        label_dir = Path(args.test_dir) / 'labels'
+    else:
+        image_dir = Path(config.get('dataset').get('images'))
+        label_dir = Path(config.get('dataset').get('labels'))
     
     dataset = WoodKnotDataset(
         image_dir=image_dir,
@@ -59,9 +69,13 @@ if __name__ == "__main__":
         for sample in dataset.samples
     }
     
-    # Construct test manifest path
-    test_manifest_path = (Path('data') / 'splits' / f'seed_{args.seed}' / 'test.txt')
-    image_paths = load_test_manifest(test_manifest_path)
+    # Load test images
+    if args.test_dir is not None:
+        image_paths = sorted(image_dir.glob('*.png'))
+    else:
+        # Construct test manifest path
+        test_manifest_path = (Path('data') / 'splits' / f'seed_{args.seed}' / 'test.txt')
+        image_paths = load_test_manifest(test_manifest_path)
     
     # Constuct model path
     model_path = (Path('runs') / 'detect' / 'output' / f'seed_{args.seed}' / f'{args.run}' / 'weights' / 'best.pt')
@@ -98,6 +112,8 @@ if __name__ == "__main__":
     
     print('Stitching frames...')
     output_dir = (Path(config.get('output').get('directory'))/f'seed_{args.seed}'/f'{args.run}')
+    board.clear_board_images(output_dir=output_dir)
+    
     # Draw bounding boxes, stitch and save
     boards = board.group_prediction_samples_by_board(prediction_samples)
     for board_index, board_samples in boards.items():

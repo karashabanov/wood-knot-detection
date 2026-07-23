@@ -7,6 +7,7 @@ from typing import Tuple, Dict, List
 
 from src.wood_knot_detection.dataset.loader import WoodKnotDataset
 from src.wood_knot_detection.detection.detector import YOLODetector
+from src.wood_knot_detection.evaluation.evaluator import Evaluator
 from src.wood_knot_detection.dataset.models import PredictionSample
 from src.wood_knot_detection.utils import board
 from src.wood_knot_detection.utils.visualization import draw_bounding_boxes
@@ -74,6 +75,7 @@ if __name__ == "__main__":
     total_detections = 0 # Bounding boxes count, YOLO found
     total_annotations = 0 # Bounding boxes count, Ground Truth
     
+    print('Starting inference...')
     for image_path in image_paths:
         # Ground truth
         sample = samples_by_image.get(image_path)
@@ -92,10 +94,7 @@ if __name__ == "__main__":
         
         total_detections += len(prediction.detections)
         total_annotations += len(sample.annotations)
-    
-    print(f'Images evaluated: {len(prediction_samples)}')
-    print(f'Total annotations: {total_annotations}')
-    print(f'Total detections: {total_detections}')
+    print('Inference finished.')
     
     print('Stitching frames...')
     output_dir = (Path(config.get('output').get('directory'))/f'seed_{args.seed}'/f'{args.run}')
@@ -128,3 +127,11 @@ if __name__ == "__main__":
             image=stitched_board
         )
     print('Stithing frames finished.')
+    
+    print('Evaluating results...')
+    # Evaluate results
+    evaluation_result = Evaluator.evaluate(prediction_samples, 0.5)
+    Evaluator.save(evaluation_result=evaluation_result, output_dir=output_dir)
+    print('Evaluation finished.')
+    print(f'See results in {output_dir}.')
+    

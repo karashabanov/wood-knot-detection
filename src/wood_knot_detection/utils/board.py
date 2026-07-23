@@ -84,3 +84,13 @@ def save_board_image(output_dir: Path, board_index: int, image: cv2.typing.MatLi
     output_filename = output_dir / f'board_{board_index}.png'
     
     cv2.imwrite(filename=str(output_filename), img=image)
+
+def clear_board_images(output_dir: Path) -> None:
+    """
+    Remove previously generated board images from the output directory.
+
+    Args:
+        output_dir (Path): Directory containing generated board images.
+    """
+    for image in output_dir.glob('*.png'):
+        image.unlink()
